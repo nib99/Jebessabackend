@@ -35,16 +35,12 @@ const contactLimiter = rateLimit({
 });
 
 // -------------------- DATABASE CONNECTION --------------------
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('✅ MongoDB Connected'))
-.catch(err => {
-  console.error('❌ MongoDB connection error:', err);
-  process.exit(1);
-});
-
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ MongoDB Connected'))
+  .catch(err => {
+    console.error('❌ MongoDB connection error:', err);
+    process.exit(1);
+  });
 // -------------------- MODELS --------------------
 const serviceSchema = new mongoose.Schema({
   title: { type: String, required: true },
