@@ -1,6 +1,7 @@
 {
   "name": "jhs-engineering-backend",
   "version": "1.0.0",
+  "description": "Backend for JHS Engineering and Trade",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -9,7 +10,7 @@
   "dependencies": {
     "adminjs": "^6.8.7",
     "@adminjs/express": "^5.1.0",
-    "@adminjs/mongoose": "^3.0.4",
+    "@adminjs/mongoose": "^3.0.3",
     "bcryptjs": "^2.4.3",
     "connect-mongo": "^5.1.0",
     "cors": "^2.8.5",
@@ -25,5 +26,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
