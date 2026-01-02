@@ -16,6 +16,12 @@ const AdminJSMongoose = require('@adminjs/mongoose');
 
 const app = express();
 
+const cors = require("cors");
+
+app.use(cors({
+  origin: "https://jebessafrontend.vercel.app",
+  credentials: true
+}));
 // -------------------- SECURITY & MIDDLEWARE --------------------
 app.use(helmet({
   contentSecurityPolicy: false, // Disable if you have inline scripts/styles
@@ -301,10 +307,11 @@ app.post('/api/reset-password', async (req, res) => {
 });
 
 // -------------------- SERVE FRONTEND --------------------
-app.use(express.static(path.join(__dirname, '../frontend')));
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+app.get("/", (req, res) => {
+  res.json({
+    status: "Backend is running 🚀",
+    frontend: "https://jebessafrontend.vercel.app"
+  });
 });
 
 // -------------------- INITIAL SETUP --------------------
