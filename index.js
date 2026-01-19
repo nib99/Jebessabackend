@@ -175,7 +175,7 @@ const admin = new AdminJS({
       ]);
       return { stats: { inquiries, projects, services } };
     },
-    component: AdminJS.bundle('./components/dashboard.jsx')
+    //component: AdminJS.bundle('./components/dashboard.jsx')
   },
   rootPath: '/admin',
   branding: { companyName: 'JHS Engineering Admin' }
