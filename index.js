@@ -16,7 +16,7 @@ const AdminJSMongoose = require('@adminjs/mongoose');
 const cors = require('cors');
 
 const app = express();
-
+app.set('trust proxy', 1);
 // ── 1. Safe middleware (NO body parsing yet!) ──
 app.use(cors({
   origin: "https://jebessafrontend.vercel.app",
