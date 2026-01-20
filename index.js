@@ -157,34 +157,77 @@ transporter.verify((error) => {
   });
 
   const admin = new AdminJS({
-    resources: [
-      Service, Project,
-      { resource: Inquiry, options: { actions: { new: false, edit: false } } },
-      Config,
-      {
-        resource: User,
-        options: {
-          properties: { password: { type: 'password', isVisible: { edit: true, show: false, list: false } } },
-          actions: {
-            new: { before: async (req) => req.payload.password ? { ...req.payload, password: await bcrypt.hash(req.payload.password, 12) } : req },
-            edit: { before: async (req) => req.payload.password ? { ...req.payload, password: await bcrypt.hash(req.payload.password, 12) } : req }
-          }
-        }
-      }
-    ],
-    dashboard: {
-      handler: async () => {
-        const [inquiries, projects, services] = await Promise.all([
-          Inquiry.countDocuments(),
-          Project.countDocuments(),
-          Service.countDocuments()
-        ]);
-        return { stats: { inquiries, projects, services } };
+  componentLoader,   // ← this line is required for custom components to work
+
+  resources: [
+    Service,
+    Project,
+    { resource: Inquiry, options: { actions: { new: false, edit: false } } },
+    Config,
+    {
+      resource: User,
+      options: {
+        properties: {
+          password: {
+            type: 'password',
+            isVisible: { edit: true, show: false, list: false },
+          },
+        },
+        actions: {
+          new: {
+            before: async (req) =>
+              req.payload.password
+                ? { ...req.payload, password: await bcrypt.hash(req.payload.password, 12) }
+                : req,
+          },
+          edit: {
+            before: async (req) =>
+              req.payload.password
+                ? { ...req.payload, password: await bcrypt.hash(req.payload.password, 12) }
+                : req,
+          },
+        },
       },
     },
-    rootPath: '/admin',
-    branding: { companyName: 'JHS Engineering Admin' }
-  });
+  ],
+
+  dashboard: {
+    handler: async () => {
+      try {
+        const [inquiriesCount, projectsCount, servicesCount, recentInquiriesRaw] = await Promise.all([
+          Inquiry.countDocuments(),
+          Project.countDocuments(),
+          Service.countDocuments(),
+          Inquiry.find()
+            .sort({ createdAt: -1 })
+            .limit(5)
+            .select('name email createdAt _id')
+            .lean(),
+        ]);
+
+        return {
+          stats: {
+            inquiries: inquiriesCount,
+            projects: projectsCount,
+            services: servicesCount,
+          },
+          recentInquiries: recentInquiriesRaw || [],
+        };
+      } catch (err) {
+        console.error('Dashboard handler error:', err);
+        return {
+          stats: { inquiries: 0, projects: 0, services: 0 },
+          recentInquiries: [],
+        };
+      }
+    },
+
+    component: Components.Dashboard,   // ← connects your dashboard.jsx
+  },
+
+  rootPath: '/admin',
+  branding: { companyName: 'JHS Engineering Admin' },
+});
 
   const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
     admin,
