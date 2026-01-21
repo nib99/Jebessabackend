@@ -163,36 +163,64 @@ const ImageShow = componentLoader.add('ImageShow', './components/ImageShow');
   componentLoader,   // ← this line is required for custom components to work
 
   resources: [
-    Service,
-    Project,
-    { resource: Inquiry, options: { actions: { new: false, edit: false } } },
-    Config,
-    {
-      resource: User,
-      options: {
-        properties: {
-          password: {
-            type: 'password',
-            isVisible: { edit: true, show: false, list: false },
-          },
-        },
-        actions: {
-          new: {
-            before: async (req) =>
-              req.payload.password
-                ? { ...req.payload, password: await bcrypt.hash(req.payload.password, 12) }
-                : req,
-          },
-          edit: {
-            before: async (req) =>
-              req.payload.password
-                ? { ...req.payload, password: await bcrypt.hash(req.payload.password, 12) }
-                : req,
+  {
+    resource: Service,
+    options: {
+      properties: {
+        image: {
+          type: 'string',  // remains string — we store only the filename
+          components: {
+            edit: ImageUploadComponent,   // ← custom upload UI
+            show: ImageShowComponent,     // ← custom preview
+            // list: ImageShowComponent,  // ← optional: show thumbnail in list view
           },
         },
       },
     },
-  ],
+  },
+  {
+    resource: Project,
+    options: {
+      properties: {
+        image: {
+          type: 'string',
+          components: {
+            edit: ImageUploadComponent,
+            show: ImageShowComponent,
+            // list: ImageShowComponent,
+          },
+        },
+      },
+    },
+  },
+  { resource: Inquiry, options: { actions: { new: false, edit: false } } },
+  Config,
+  {
+    resource: User,
+    options: {
+      properties: {
+        password: {
+          type: 'password',
+          isVisible: { edit: true, show: false, list: false },
+        },
+      },
+      actions: {
+        new: {
+          before: async (req) =>
+            req.payload.password
+              ? { ...req.payload, password: await bcrypt.hash(req.payload.password, 12) }
+              : req,
+        },
+        edit: {
+          before: async (req) =>
+            req.payload.password
+              ? { ...req.payload, password: await bcrypt.hash(req.payload.password, 12) }
+              : req,
+        },
+      },
+    },
+  },
+],
 
   dashboard: {
     handler: async () => {
