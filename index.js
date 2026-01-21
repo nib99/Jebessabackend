@@ -150,7 +150,7 @@ transporter.verify((error) => {
 (async () => {
   await connectDB();
 
-  // -------------------- ADMINJS SETUP --------------------
+// -------------------- ADMINJS SETUP --------------------
 AdminJS.registerAdapter({
   Database: AdminJSMongoose.Database,
   Resource: AdminJSMongoose.Resource,
