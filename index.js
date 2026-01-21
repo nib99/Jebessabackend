@@ -151,82 +151,109 @@ transporter.verify((error) => {
   await connectDB();
 
   // -------------------- ADMINJS SETUP --------------------
-  AdminJS.registerAdapter({
-    Database: AdminJSMongoose.Database,
-    Resource: AdminJSMongoose.Resource,
-  });
+AdminJS.registerAdapter({
+  Database: AdminJSMongoose.Database,
+  Resource: AdminJSMongoose.Resource,
+});
+
 const componentLoader = new AdminJS.ComponentLoader();
 
+// Create component references (these are what you use in resources)
 const ImageUpload = componentLoader.add('ImageUpload', './components/ImageUpload');
-const ImageShow = componentLoader.add('ImageShow', './components/ImageShow');
-  const admin = new AdminJS({
-  componentLoader,   // ← this line is required for custom components to work
+const ImageShow   = componentLoader.add('ImageShow',   './components/ImageShow');
+
+const admin = new AdminJS({
+  componentLoader,
 
   resources: [
-  {
-    resource: Project,
-    options: {
-      properties: {
-        image: {
-          type: 'string',
-          components: {
-            edit: ImageUpload,  // ← use the variable from componentLoader
-            show: ImageShow,
+    {
+      resource: Project,
+      options: {
+        properties: {
+          image: {
+            type: 'string',
+            components: {
+              edit: ImageUpload,
+              show: ImageShow,
+              // list: ImageShow,    // optional - show small preview in list view
+            },
           },
         },
       },
     },
-  },
-  {
-    resource: Service,
-    options: {
-      properties: {
-        image: {
-          type: 'string',
-          components: {
-            edit: ImageUpload,
-            show: ImageShow,
+    {
+      resource: Service,
+      options: {
+        properties: {
+          image: {
+            type: 'string',
+            components: {
+              edit: ImageUpload,
+              show: ImageShow,
+              // list: ImageShow,
+            },
           },
         },
       },
     },
-  },
-  { resource: Inquiry, options: { actions: { new: false, edit: false } } },
-  {
-    resource: Config,
-    options: {
-      properties: {
-        leadership: { isDisabled: true },  // read-only
-        management: { isDisabled: true },  // read-only
-      },
-    },
-  },
-  {
-    resource: User,
-    options: {
-      properties: {
-        password: {
-          type: 'password',
-          isVisible: { edit: true, show: false, list: false },
-        },
-      },
-      actions: {
-        new: {
-          before: async (req) =>
-            req.payload.password
-              ? { ...req.payload, password: await bcrypt.hash(req.payload.password, 12) }
-              : req,
-        },
-        edit: {
-          before: async (req) =>
-            req.payload.password
-              ? { ...req.payload, password: await bcrypt.hash(req.payload.password, 12) }
-              : req,
+    {
+      resource: Inquiry,
+      options: {
+        actions: {
+          new: false,
+          edit: false,
         },
       },
     },
-  },
-]
+    {
+      resource: Config,
+      options: {
+        // Remove isDisabled if you want to edit these fields
+        // If leadership/management are actual fields in Config schema, keep only if you truly want read-only
+        // properties: {
+        //   leadership: { isDisabled: true },
+        //   management: { isDisabled: true },
+        // },
+        // Optional: better labels and visibility
+        properties: {
+          about_intro:      { type: 'textarea' },
+          vision_text:      { type: 'textarea' },
+          mission_text:     { type: 'textarea' },
+          footer_text:      { type: 'textarea' },
+          contact_address:  { type: 'textarea' },
+        },
+      },
+    },
+    {
+      resource: User,
+      options: {
+        properties: {
+          password: {
+            type: 'password',
+            isVisible: { edit: true, show: false, list: false },
+          },
+        },
+        actions: {
+          new: {
+            before: async (req) => {
+              if (req.payload.password) {
+                req.payload.password = await bcrypt.hash(req.payload.password, 12);
+              }
+              return req;
+            },
+          },
+          edit: {
+            before: async (req) => {
+              if (req.payload.password) {
+                req.payload.password = await bcrypt.hash(req.payload.password, 12);
+              }
+              return req;
+            },
+          },
+        },
+      },
+    },
+  ],
 
   dashboard: {
     handler: async () => {
@@ -258,12 +285,15 @@ const ImageShow = componentLoader.add('ImageShow', './components/ImageShow');
         };
       }
     },
-
-    component: Components.Dashboard,   // ← connects your dashboard.jsx
+    // Do NOT add component: ... unless you have a custom Dashboard.jsx file
+    // If you do have one, add: component: componentLoader.add('Dashboard', './components/Dashboard')
   },
 
   rootPath: '/admin',
-  branding: { companyName: 'JHS Engineering Admin' },
+  branding: {
+    companyName: 'JHS Engineering Admin',
+    // Optional: logo, theme, etc.
+  },
 });
 
   const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
