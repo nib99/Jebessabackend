@@ -155,7 +155,10 @@ transporter.verify((error) => {
     Database: AdminJSMongoose.Database,
     Resource: AdminJSMongoose.Resource,
   });
+const componentLoader = new AdminJS.ComponentLoader();
 
+const ImageUpload = componentLoader.add('ImageUpload', './components/ImageUpload');
+const ImageShow = componentLoader.add('ImageShow', './components/ImageShow');
   const admin = new AdminJS({
   componentLoader,   // ← this line is required for custom components to work
 
