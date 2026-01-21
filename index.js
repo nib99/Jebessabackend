@@ -164,37 +164,43 @@ const ImageShow = componentLoader.add('ImageShow', './components/ImageShow');
 
   resources: [
   {
-    resource: Service,
-    options: {
-      properties: {
-        image: {
-          type: 'string',  // remains string — we store only the filename
-          components: {
-            edit: ImageUploadComponent,   // ← custom upload UI
-            show: ImageShowComponent,     // ← custom preview
-            // list: ImageShowComponent,  // ← optional: show thumbnail in list view
-          },
-        },
-      },
-    },
-  },
-  {
     resource: Project,
     options: {
       properties: {
         image: {
           type: 'string',
           components: {
-            edit: ImageUploadComponent,
-            show: ImageShowComponent,
-            // list: ImageShowComponent,
+            edit: ImageUpload,  // ← use the variable from componentLoader
+            show: ImageShow,
+          },
+        },
+      },
+    },
+  },
+  {
+    resource: Service,
+    options: {
+      properties: {
+        image: {
+          type: 'string',
+          components: {
+            edit: ImageUpload,
+            show: ImageShow,
           },
         },
       },
     },
   },
   { resource: Inquiry, options: { actions: { new: false, edit: false } } },
-  Config,
+  {
+    resource: Config,
+    options: {
+      properties: {
+        leadership: { isDisabled: true },  // read-only
+        management: { isDisabled: true },  // read-only
+      },
+    },
+  },
   {
     resource: User,
     options: {
@@ -220,7 +226,7 @@ const ImageShow = componentLoader.add('ImageShow', './components/ImageShow');
       },
     },
   },
-],
+]
 
   dashboard: {
     handler: async () => {
